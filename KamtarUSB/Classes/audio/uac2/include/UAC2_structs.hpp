@@ -7,7 +7,7 @@
 
 #ifndef LIB_CPP_USB_AUDIO_UAC2_INCLUDE_UAC2_STRUCTS_HPP_
 #define LIB_CPP_USB_AUDIO_UAC2_INCLUDE_UAC2_STRUCTS_HPP_
-#include "usb_misc.hpp"
+#include "UsbGlobalStructs.hpp"
 
 
 struct empty {

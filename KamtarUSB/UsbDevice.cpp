@@ -24,9 +24,13 @@ void UsbDevice::Init()
 	if(s_init == true)
 		return;
 
-	 assert (USB_DeviceInit(2, (usb_device_callback_t)s_device_callback, &s_dev_ptr) == kStatus_USB_Success);
+	if( USB_DeviceInit(2, (usb_device_callback_t)s_device_callback, &s_dev_ptr)  != kStatus_USB_Success)
+	{
+		assert(false);
+		return;
+	}
 
-	 s_init = true;
+	s_init = true;
 }
 
 void UsbDevice::InitBaseClass()
@@ -72,12 +76,12 @@ usb_status_t UsbDevice::s_device_callback(usb_device_handle handle, uint32_t cal
 	{
 	case kUSB_DeviceEventBusReset:
 		s_ep_len = 0;
-
+		usb_echo("USB: BusReset\r\n");
 		for(int i=0; i<s_instance_num; i++)
 			 s_instance_list[i]._m->InitClass();
 		break;
 	default:
-		__asm__("bkpt");
+		assert(false);
 		break;
 	}
 
@@ -90,7 +94,6 @@ usb_status_t UsbDevice::s_endpoint_callback(usb_device_handle handle,  usb_devic
 
 	if(e_entry->magic != 0xBEEF)
 	{
-		__asm__("bkpt");
 		assert(false);
 		return kStatus_USB_Error;
 	}

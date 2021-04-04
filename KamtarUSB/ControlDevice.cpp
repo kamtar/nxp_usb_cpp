@@ -38,6 +38,12 @@ void ControlDevice::setup_control_ep()
 
 	if(init_endpoint(ep) == false) __asm__("bkpt");
 }
+extern "C" usb_status_t USB_DeviceControlCallbackFeedback(usb_device_handle handle,
+                                                      usb_setup_struct_t *setup,
+                                                      usb_status_t error,
+                                                      usb_device_control_read_write_sequence_t stage,
+                                                      uint8_t **buffer,
+                                                      uint32_t *length);
 
 usb_status_t ControlDevice::endpoint_callback(usb_device_handle handle,  usb_device_endpoint_callback_message_struct_t *message, uint8_t ep)
 {
@@ -46,27 +52,46 @@ usb_status_t ControlDevice::endpoint_callback(usb_device_handle handle,  usb_dev
 	 uint32_t buffer_len = 0;
 	 usb_status_t ret = kStatus_USB_InvalidRequest;
 
-	 if(ep != 0)
-		 return ret;
-
 	if (message->isSetup)
 	{
 		usb_setup_struct_t *setup = (usb_setup_struct_t *)(message->buffer);
 
-		if(setup->bRequest == 5)
+		switch((UsbStRq)setup->bRequest)
 		{
+		case UsbStRq::SetAddr:
+			usb_echo("USB: SET_ADDR: %d\r\n", setup->wValue);
 			USB_DeviceSetStatus(handle, kUSB_DeviceStatusAddress, &setup->wValue);
-			uint8_t st = kUSB_DeviceStateAddress;
-			  USB_DeviceSetStatus(handle, kUSB_DeviceStatusDeviceState, &st);
-			   buffer_len = 0;
-			   ret = USB_DeviceSendRequest(handle, 0, buffer_ptr, buffer_len);;
+			buffer_len = 0;
+			//send ACK:
+			ret = USB_DeviceSendRequest(handle, 0, buffer_ptr, buffer_len);
+			break;
 
-			return ret;
+		case UsbStRq::GetDescriptor:
+			ret = USBManager::USB_DeviceGetDescriptor(handle, setup, &buffer_len, &buffer_ptr);
+
+			if(kStatus_USB_Success == ret)
+			{
+				ret = USB_DeviceSendRequest(handle, 0, buffer_ptr, buffer_len);
+				//Prime endpoint to receive ACK from host
+				if ((kStatus_USB_Success == ret) && (USB_REQUEST_TYPE_DIR_IN == (setup->bmRequestType & USB_REQUEST_TYPE_DIR_MASK)))
+					ret = USB_DeviceRecvRequest(handle, 0, (uint8_t *)nullptr, 0);
+			}
+			else
+			{
+				usb_echo("USB: Unkwown descriptor id");
+				assert(false);
+			}
+			break;
+
+		default:
+			usb_echo("USB: Unhandled setup rq - %d \r\n", setup->bRequest);
+			break;
 		}
-
-		ret = USBManager::USB_DeviceGetDescriptor(handle, setup, &buffer_len, &buffer_ptr);
-		ret = USB_DeviceSendRequest(handle, 0, buffer_ptr, buffer_len);
+	}else
+	{
+		usb_echo("USB: NON-SETUP unhandled rq\r\n");
 	}
+
 
 	return ret;
 }

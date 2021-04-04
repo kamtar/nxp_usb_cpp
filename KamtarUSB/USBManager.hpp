@@ -7,7 +7,7 @@
 
 #ifndef SOURCE_USBMANAGER_HPP_
 #define SOURCE_USBMANAGER_HPP_
-#include <usb/usb_misc.hpp>
+#include <usb/UsbGlobalStructs.hpp>
 #include <stdint.h>
 
 

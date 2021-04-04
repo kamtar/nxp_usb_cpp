@@ -14,7 +14,10 @@ namespace KamtarUSB {
 class ControlDevice : public UsbDevice {
 
 public:
-
+	enum class UsbStRq : uint8_t{
+		SetAddr = 5,
+		GetDescriptor = 6
+	};
 	ControlDevice();
 
 	virtual void InitClass() override;

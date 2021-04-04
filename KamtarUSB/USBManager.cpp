@@ -101,6 +101,7 @@ usb_status_t USBManager::USB_DeviceGetDescriptor(usb_device_handle handle,  usb_
     {
         case USB_DESCRIPTOR_TYPE_STRING:
         {
+        	usb_echo("USB: USB_DESCRIPTOR_TYPE_STRING\r\n");
         	switch(descriptorIndex)
         	{
         	case 0:
@@ -109,11 +110,11 @@ usb_status_t USBManager::USB_DeviceGetDescriptor(usb_device_handle handle,  usb_
         		 break;
         	case VendorNameIndex:
         	    *out_buffer = s_VendorString;
-        	    *out_length = s_VendorString[0]-2;
+        	    *out_length = s_VendorString[0];
         	    break;
         	case DeviceNameIndex:
         	     *out_buffer = s_DeviceString;
-        	     *out_length = s_DeviceString[0]-2;
+        	     *out_length = s_DeviceString[0];
         	     break;
         	}
 
@@ -121,19 +122,21 @@ usb_status_t USBManager::USB_DeviceGetDescriptor(usb_device_handle handle,  usb_
         break;
         case USB_DESCRIPTOR_TYPE_DEVICE:
         {
+        	usb_echo("USB: USB_DESCRIPTOR_TYPE_DEVICE\r\n");
             *out_buffer = (uint8_t*)(&s_dev_desc);
             *out_length = s_dev_desc.bLength;
         }
         break;
         case USB_DESCRIPTOR_TYPE_CONFIGURE:
         {
-        	//fill total lenght
-        	((uint16_t*)s_ConfigDestriptors)[1] = s_ConfigDescLen;
+        	usb_echo("USB: USB_DESCRIPTOR_TYPE_CONFIGURE\r\n");
+        	((uint16_t*)s_ConfigDestriptors)[1] = s_ConfigDescLen; //fill total lenght
             *out_buffer = s_ConfigDestriptors;
             *out_length = s_ConfigDescLen;
         }
         break;
         default:
+        	usb_echo("USB: %d\r\n", setup->bRequest);
             ret = kStatus_USB_InvalidRequest;
             break;
     } /* End Switch */
