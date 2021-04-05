@@ -32,18 +32,12 @@ void ControlDevice::setup_control_ep()
 	ep.endpointAddress = USB_CONTROL_ENDPOINT | (USB_IN << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
 	ep.maxPacketSize = 64;
 
-	if(init_endpoint(ep) == false) __asm__("bkpt");
+	if(init_endpoint(ep) == false) assert(false);
 
 	ep.endpointAddress = USB_CONTROL_ENDPOINT | (USB_OUT << USB_DESCRIPTOR_ENDPOINT_ADDRESS_DIRECTION_SHIFT);
 
-	if(init_endpoint(ep) == false) __asm__("bkpt");
+	if(init_endpoint(ep) == false) assert(false);
 }
-extern "C" usb_status_t USB_DeviceControlCallbackFeedback(usb_device_handle handle,
-                                                      usb_setup_struct_t *setup,
-                                                      usb_status_t error,
-                                                      usb_device_control_read_write_sequence_t stage,
-                                                      uint8_t **buffer,
-                                                      uint32_t *length);
 
 usb_status_t ControlDevice::endpoint_callback(usb_device_handle handle,  usb_device_endpoint_callback_message_struct_t *message, uint8_t ep)
 {
