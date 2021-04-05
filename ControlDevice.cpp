@@ -5,20 +5,28 @@
  *      Author: Kamtar
  */
 
-#include <usb/ControlDevice.hpp>
+#include "./ControlDevice.hpp"
 #include <usb_device_ch9.h>
+#include "USBManager.hpp"
 
 namespace KamtarUSB {
 
 ControlDevice::ControlDevice()
 {
 	// TODO Auto-generated constructor stub
-	InitBaseClass();
+
+	ConfigurationDesc::Defaults(s_cfg_desc);
+	s_cfg_desc.wTotalLength = sizeof(ConfigurationDesc);
+	s_cfg_desc.bNumInterfaces = 0;
+	s_cfg_desc.bConfigurationValue = 1;
+	s_cfg_desc.iConfiguration = 0;
+	s_cfg_desc.self_powered = 1;
+	s_cfg_desc.remote_wakeup = 0;
+	s_cfg_desc.bMaxPower = 0x32;
 }
 
 void ControlDevice::InitClass()
 {
-
 	setup_control_ep();
 }
 

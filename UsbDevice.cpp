@@ -5,7 +5,7 @@
  *      Author: Kamtar
  */
 
-#include <usb/UsbDevice.hpp>
+#include "./UsbDevice.hpp"
 
 namespace KamtarUSB {
 
@@ -31,6 +31,11 @@ void UsbDevice::Init()
 	}
 
 	s_init = true;
+}
+
+bool UsbDevice::SetReady()
+{
+	 return (USB_DeviceRun(s_dev_ptr) == kStatus_USB_Success);
 }
 
 void UsbDevice::InitBaseClass()

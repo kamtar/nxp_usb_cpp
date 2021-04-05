@@ -7,9 +7,9 @@
 
 #ifndef SOURCE_USBMANAGER_HPP_
 #define SOURCE_USBMANAGER_HPP_
-#include <usb/UsbGlobalStructs.hpp>
-#include <stdint.h>
+#include "./UsbGlobalStructs.hpp"
 
+#include <stdint.h>
 
 #include "usb_device_config.h"
 #include "usb.h"
@@ -20,6 +20,8 @@
 #include "fsl_device_registers.h"
 
 #include "usb_device_ehci.h"
+
+#include "./ControlDevice.hpp"
 
 using namespace KamtarUSB;
 
@@ -35,8 +37,8 @@ class USBManager
 public:
 	static void Init(uint8_t usb_id);
 
-	static bool register_Descriptor(uint8_t* data, size_t len, uint8_t cfg_num = 0);
-	static bool init_USB();
+
+	static bool SetReady();
 
 	static void SetVendorString(const char* str);
 	static void SetDeviceString(const char* str);
@@ -46,9 +48,12 @@ public:
 
 private:
 
+
+	inline static ControlDevice s_ctrl_dev;
+
+
 	inline static uint8_t s_usb_id;
-	inline static uint8_t s_list_n;
-	inline static DescriptorItem s_desc_list[DescriptorListMax];
+
 
 	inline USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static DeviceDesc s_dev_desc;
 
@@ -59,6 +64,7 @@ private:
 
 	inline USB_DMA_INIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_ConfigDestriptors[208];
 	inline static uint8_t s_ConfigDescLen;
+
 
 };
 

@@ -17,8 +17,7 @@
 #include "fsl_device_registers.h"
 
 #include "usb_device_ehci.h"
-
-#include <usb/USBManager.hpp>
+#include "./UsbGlobalStructs.hpp"
 
 namespace KamtarUSB {
 
@@ -31,6 +30,8 @@ public:
 	void InitBaseClass();
 	virtual void InitClass() = 0;
 
+	static bool SetReady();
+
 	static usb_status_t s_device_callback(usb_device_handle handle, uint32_t callbackEvent, void *eventParam);
 	virtual usb_status_t device_callback(usb_device_handle handle, uint32_t callbackEvent, void *eventParam) = 0;
 
@@ -40,12 +41,17 @@ public:
 	bool init_endpoint(usb_device_endpoint_init_struct_t& ep);
 	static void register_control_handler(UsbDevice &dev);
 
+	virtual DescriptorItem GetCfgDescriptors() = 0;
+
 	inline static usb_device_handle s_dev_ptr;
-private:
 
 	struct instance_entry{ UsbDevice* _m;  usb_device_handle dev;};
 	inline static instance_entry s_instance_list[4];
 	inline static uint8_t		  s_instance_num;
+
+private:
+
+
 
 
 	inline static bool s_init;

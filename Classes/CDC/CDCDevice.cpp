@@ -11,15 +11,8 @@ namespace KamtarUSB {
 
 CDCDevice::CDCDevice(uint8_t config_id)
 {
-	InitBaseClass();
 	CDCSerialDesc::Defaults(m_desc);
-	m_desc.cfg.wTotalLength = 0;
-	m_desc.cfg.bNumInterfaces = 2;
-	m_desc.cfg.bConfigurationValue = config_id;
-	m_desc.cfg.iConfiguration = 0;
-	m_desc.cfg.self_powered = 1;
-	m_desc.cfg.remote_wakeup = 0;
-	m_desc.cfg.bMaxPower = 0x32;
+
 
 	m_desc.cdc_if.bInterfaceNumber = 0;
 	m_desc.cdc_if.bAlternateSetting = 0;
@@ -80,8 +73,7 @@ CDCDevice::CDCDevice(uint8_t config_id)
 	m_desc.bulkout_ep.wMaxPacketSize = 64;
 	m_desc.bulkout_ep.bInterval = 0x00;
 
-
-	USBManager::register_Descriptor((uint8_t*)&m_desc, sizeof(CDCSerialDesc));
+	InitBaseClass();
 }
 
 void CDCDevice::InitClass()

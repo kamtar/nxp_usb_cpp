@@ -73,6 +73,8 @@ enum class DeviceClassCodes : uint8_t {
 struct DescriptorItem {
 	void* data;
 	size_t len;
+	uint8_t cfg_id;
+	uint8_t if_num;
 	DescriptorItem* next;
 };
 

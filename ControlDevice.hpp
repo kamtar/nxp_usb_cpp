@@ -7,7 +7,7 @@
 
 #ifndef LIB_CPP_USB_CONTROLDEVICE_HPP_
 #define LIB_CPP_USB_CONTROLDEVICE_HPP_
-#include <usb/UsbDevice.hpp>
+#include "./UsbDevice.hpp"
 
 namespace KamtarUSB {
 
@@ -25,6 +25,9 @@ public:
 
 	virtual usb_status_t endpoint_callback(usb_device_handle handle,  usb_device_endpoint_callback_message_struct_t *message, uint8_t ep) override;
 
+	virtual DescriptorItem GetCfgDescriptors() override { return DescriptorItem {.data = &s_cfg_desc, .len = sizeof(ConfigurationDesc), .if_num=0};	};
+
+	ConfigurationDesc s_cfg_desc;
 private:
 	void setup_control_ep();
 

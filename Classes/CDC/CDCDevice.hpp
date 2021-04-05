@@ -7,7 +7,7 @@
 
 #ifndef USB_CDCDEVICE_HPP_
 #define USB_CDCDEVICE_HPP_
-#include <usb/UsbDevice.hpp>
+#include "../../UsbDevice.hpp"
 
 namespace KamtarUSB {
 
@@ -16,7 +16,6 @@ public:
 
 	struct CDCSerialDesc
 	{
-		ConfigurationDesc cfg;
 		InterfaceDesc	cdc_if;
 		uint8_t lazy_class_specific_data[19];
 		EndpointDesc notification_ep;
@@ -25,7 +24,6 @@ public:
 		EndpointDesc bulkout_ep;
 		static void Defaults(CDCSerialDesc &d)
 		{
-			ConfigurationDesc::Defaults(d.cfg);
 			InterfaceDesc::Defaults(d.cdc_if);
 			EndpointDesc::Defaults(d.notification_ep);
 			InterfaceDesc::Defaults(d.data_if);
@@ -42,8 +40,11 @@ public:
 
 	virtual usb_status_t endpoint_callback(usb_device_handle handle,  usb_device_endpoint_callback_message_struct_t *message, uint8_t ep) override;
 
+	virtual DescriptorItem GetCfgDescriptors() override { return DescriptorItem {.data = &m_desc, .len=sizeof(CDCSerialDesc), .cfg_id=m_cfg_id, .if_num = 2};	};
+
 private:
 	CDCSerialDesc m_desc;
+	uint8_t m_cfg_id;
 };
 
 } /* namespace KamtarUSB */

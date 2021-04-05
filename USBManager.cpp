@@ -5,7 +5,7 @@
  *      Author: Kamtar
  */
 
-#include "USBManager.hpp"
+#include "./USBManager.hpp"
 #include <assert.h>
 #include <string.h>
 
@@ -14,7 +14,6 @@
 void USBManager::Init(uint8_t usb_id)
 {
 	s_usb_id = usb_id;
-	s_list_n = 0;
 	s_ConfigDescLen = 0;
 
 	DeviceDesc::Defaults(s_dev_desc);
@@ -33,6 +32,10 @@ void USBManager::Init(uint8_t usb_id)
 
 	SetVendorString("DefVendor");
 	SetDeviceString("DefDevice");
+
+	 UsbDevice::register_control_handler (s_ctrl_dev);
+	 s_ctrl_dev.InitBaseClass();
+	 UsbDevice::Init();
 }
 
 void USBManager::SetVendorString(const char* str)
@@ -75,14 +78,32 @@ void USBManager::SetDeviceString(const char* str)
 	s_DeviceString[1] = (uint8_t)DescType::String;
 }
 
-bool USBManager::register_Descriptor(uint8_t* data, size_t len, uint8_t cfg_id)
+
+bool USBManager::SetReady()
 {
-	for(int i=s_ConfigDescLen; i<(s_ConfigDescLen+len); i++)
+	int a_i = 0;
+	DescriptorItem desc[UsbDevice::s_instance_num];
+
+	for(int i=0;i<UsbDevice::s_instance_num;i++)
 	{
-		s_ConfigDestriptors[i] = data[i];
+		desc[i] = UsbDevice::s_instance_list[i]._m->GetCfgDescriptors();
+		s_ctrl_dev.s_cfg_desc.bNumInterfaces += desc[i].if_num;
+		s_ctrl_dev.s_cfg_desc.wTotalLength += desc[i].len;
 	}
 
-	s_ConfigDescLen += len;
+	for(int i=0;i<UsbDevice::s_instance_num;i++)
+	{
+		uint8_t* d = (uint8_t*)desc[i].data;
+
+		for(int e=0; e<	desc[i].len; e++)
+		{
+			s_ConfigDestriptors[a_i] = d[e];
+			a_i++;
+		}
+	}
+
+	s_ConfigDescLen = s_ctrl_dev.s_cfg_desc.wTotalLength;
+	UsbDevice::SetReady();
 	return true;
 }
 
@@ -130,7 +151,6 @@ usb_status_t USBManager::USB_DeviceGetDescriptor(usb_device_handle handle,  usb_
         case USB_DESCRIPTOR_TYPE_CONFIGURE:
         {
         	usb_echo("USB: USB_DESCRIPTOR_TYPE_CONFIGURE\r\n");
-        	((uint16_t*)s_ConfigDestriptors)[1] = s_ConfigDescLen; //fill total lenght
             *out_buffer = s_ConfigDestriptors;
             *out_length = s_ConfigDescLen;
         }
